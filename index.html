@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cyber Store</title>
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app" v-cloak>
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <div>
+            <strong>Cyber Store</strong>
+            <span>{{ userLabel }}</span>
+          </div>
+        </div>
+
+        <nav class="category-list" aria-label="Categories">
+          <button
+            class="category-button"
+            :class="{ active: selectedCategory === null }"
+            type="button"
+            @click="selectCategory(null)"
+          >
+            <i data-lucide="sparkles"></i>
+            <span>All drops</span>
+          </button>
+          <button
+            v-for="category in categories"
+            :key="category.slug"
+            class="category-button"
+            :class="{ active: selectedCategory === category.slug }"
+            type="button"
+            :style="{ '--accent': category.accent }"
+            @click="selectCategory(category.slug)"
+          >
+            <span class="swatch"></span>
+            <span>{{ category.name }}</span>
+          </button>
+        </nav>
+
+        <div class="session-panel">
+          <button class="icon-button" type="button" title="Refresh catalog" @click="loadAll">
+            <i data-lucide="refresh-cw"></i>
+          </button>
+          <button class="action-button" type="button" @click="login">
+            <i data-lucide="log-in"></i>
+            <span>{{ sessionToken ? 'Signed in' : 'Demo login' }}</span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="search-shell">
+            <i data-lucide="search"></i>
+            <input v-model="query" type="search" placeholder="Search catalog" @input="debouncedLoad" />
+          </div>
+          <div class="status-strip">
+            <span>{{ products.length }} items</span>
+            <span>{{ apiState }}</span>
+          </div>
+        </header>
+
+        <section class="hero-band" aria-label="Featured collection">
+          <img
+            src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1800&q=80"
+            alt=""
+          />
+          <div class="hero-copy">
+            <h1>Cyber Store</h1>
+            <p>Fast Telegram-ready storefront for curated drops, clean API data, and a sharp neon retail mood.</p>
+          </div>
+        </section>
+
+        <section class="catalog-grid" aria-label="Products">
+          <article v-for="product in products" :key="product.id" class="product-card">
+            <div class="media">
+              <img :src="product.image_url" :alt="product.title" />
+              <span class="badge" :style="{ '--accent': product.category_accent }">{{ product.category_name }}</span>
+            </div>
+            <div class="product-body">
+              <div>
+                <h2>{{ product.title }}</h2>
+                <p>{{ product.description }}</p>
+              </div>
+              <div class="product-meta">
+                <strong>{{ money(product.price_cents) }}</strong>
+                <span>{{ product.stock }} in stock</span>
+              </div>
+              <button class="buy-button" type="button" @click="quote(product)">
+                <i data-lucide="shopping-bag"></i>
+                <span>Quote</span>
+              </button>
+            </div>
+          </article>
+        </section>
+
+        <section v-if="quoteState" class="quote-drawer" aria-live="polite">
+          <button class="icon-button" type="button" title="Close quote" @click="quoteState = null">
+            <i data-lucide="x"></i>
+          </button>
+          <div>
+            <span>Quote ready</span>
+            <strong>{{ money(quoteState.total_cents) }}</strong>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
